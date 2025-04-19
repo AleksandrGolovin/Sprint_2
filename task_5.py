@@ -25,59 +25,55 @@
 # 5. Вызови все методы для объектов football_team и hockey_team.
 # Используй цикл for. Названия методов при этом не должны повторяться для обоих объектов.
 
-class Results:
+from abc import ABC, abstractmethod
+
+class Results (ABC):
     def __init__(self, victories, draws, losses):
         self.victories = victories
         self.draws = draws
         self.losses = losses
 
+    @abstractmethod
     def number_of_wins(self):
-        return f'{self.get_title_by_child_type(self)} побед: {self.victories}'
-    
-    def number_of_draws(self):
-        return f'{self.get_title_by_child_type(self)} ничьих: {self.draws}'
-    
-    def number_of_losses(self):
-        return f'{self.get_title_by_child_type(self)} поражений: {self.losses}'
-    
-    def total_points(self):
-        points_rules = self.get_points_rules_by_child_type(self)
-        points = points_rules['victory'] * self.victories + points_rules['draw'] * self.draws
-        return f"Общее количество очков: {points}"
-    
-    @classmethod
-    def get_instance_methods(cls):
-        return [
-            name for name, attr in vars(cls).items()
-            if not isinstance(attr, (classmethod, staticmethod))  # Не классовые, не статические
-            and not (name.startswith('__') and name.endswith('__'))  # Не магические
-        ]
+        pass
 
-    @staticmethod
-    def get_title_by_child_type(child_type) -> str:
-        match type(child_type).__name__:
-            case 'Football':
-                return "Футбольных"
-            case 'Hockey':
-                return "Хоккейныйх"
-            case _:
-                return "Неизвестных"
+    @abstractmethod
+    def number_of_draws(self):
+        pass
     
-    @staticmethod
-    def get_points_rules_by_child_type(child_type) -> dict[str, int]:
-        match type(child_type).__name__:
-            case 'Football':
-                return {'victory': 3, 'draw': 1}
-            case 'Hockey':
-                return {'victory': 2, 'draw': 1}
-            case _:
-                return {'victory': 0, 'draw': 0}
+    @abstractmethod
+    def number_of_losses(self):
+        pass
+    
+    @abstractmethod
+    def total_points(self):
+        pass
     
 class Football(Results):
-    pass
+    def number_of_wins(self):
+        return f"Футбольных побед: {self.victories}"
+    
+    def number_of_draws(self):
+        return f"Футбольных ничьих: {self.draws}"
+    
+    def number_of_losses(self):
+        return f"Футбольных поражений: {self.losses}"
+    
+    def total_points(self):
+        return f"Общее количество очков: {3 * self.victories + self.draws}"
 
 class Hockey(Results):
-    pass
+    def number_of_wins(self):
+        return f"Хоккейных побед: {self.victories}"
+    
+    def number_of_draws(self):
+        return f"Хоккейных ничьих: {self.draws}"
+    
+    def number_of_losses(self):
+        return f"Хоккейных поражений: {self.losses}"
+    
+    def total_points(self):
+        return f"Общее количество очков: {2 * self.victories + self.draws}"
     
 # Экземпляры классов
 football_team = Football(2, 2, 2)
@@ -85,5 +81,8 @@ hockey_team = Hockey(2, 2, 2)
 
 # Вывести в консоль
 for team in (football_team, hockey_team):
-    for method in Results.get_instance_methods():
-        print(getattr(team, method)())
+    print(f"{type(team).__name__}:")
+    print(team.number_of_wins())
+    print(team.number_of_draws())
+    print(team.number_of_losses())
+    print(team.total_points())
